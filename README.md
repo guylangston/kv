@@ -12,6 +12,18 @@ A: GNU has a project called [GDBM](https://www.gnu.org.ua/software/gdbm/), which
 Alternative approached:
 - [SQLite](https://www.sqlite.org/index.html)
 
+## Key Ideas
+- Terminal/CLI centric
+- Implicit security by default (unix file permissions)
+- No transactions
+- Fat Locks (slow, but easy to implement)
+- Functions (allow mapping to other resources, or stored-procedure like scripting)
+  - Setup forwarding to cloud KV stores
+- Simple .json storage, 1 file per datasource/namespace
+- Simple encryption per file 
+- Limited meta-data (last/first read/write)
+- Abstracted back-end (same interface, multiple storage mechanisms: file-json, file-toml, file-csv, sqlite, sql, REST)
+
 ## CLI (Command Line Interface)
 Commands: { get, set, ls, rm }
 Flags: --stdin
