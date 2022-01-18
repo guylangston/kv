@@ -1,4 +1,4 @@
-# kv (Key-Value storage)
+kv (Key-Value storage)
 > Trivial Key-Value store (for low-volume storage, terminal-centric)
 
 ## WIP: Work In Progress (not functional)

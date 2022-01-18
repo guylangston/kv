@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Text;
 using System.Text.Json;
 using kv.core;
 
@@ -45,7 +45,7 @@ try
 
             await controller.Set(args[1], args[2], ArgValueOrStdIn(3));
             return 0;
-        
+
         case "LS":
             if (args.Length < 1)
             {
@@ -55,8 +55,8 @@ try
 
             await ReportLS(controller, args);
             return 0;
-        
-        
+
+
         case "EXPORT":
             if (args.Length < 1)
             {
@@ -113,7 +113,7 @@ void PrintHeader()
 void PrintHelp()
 {
     Console.WriteLine(
-@"kv init     {datastore}
+        @"kv init     {datastore}
 kv ls       {datastore}
 kv ls-keys  {datastore}
 kv get      {datastore} <{keyname}|--stdin>
@@ -121,6 +121,8 @@ kv set      {datastore} {keyname} <{value}|--stdin>
 kv rm       {datastore} {keyname}
 kv rm-store {datastore}
 kv export   {datastore} {format}
+    where: f
+        format = {iormat = {json,header,csv,dict}
 ");
 }
 
@@ -149,8 +151,89 @@ async Task ReportExtract(IKeyValueApi controller1, string[] args1)
 {
     var items = await controller1.GetAll(args1[1]);
 
+    if (args.Length <= 4)
+    {
+        var mob = args[2];
+        var fmt = args[3];
+        if (mob == "-f" && fmt == "header")
+        {
+            foreach (var pair in items)
+            {
+                Console.WriteLine($"{pair.Key}:{pair.Value}");
+            }
+
+            return;
+        }
+        else if (mob == "-f" && fmt == "csv")
+        {
+            foreach (var pair in items)
+            {
+                Console.WriteLine($"{pair.Key},{EncodeStringForCSV(pair.Value)}");
+            }
+
+            return;
+        }
+        else if (mob == "-f" && fmt == "dict")
+        {
+            foreach (var pair in items)
+            {
+                Console.WriteLine($"dict[\"{pair.Key}\"] = \"{pair.Value.Replace("\"", "\\\"")}\";");
+            }
+
+            return;
+        }
+        else if (mob == "-f" && fmt == "setter")
+                {
+                    foreach (var pair in items)
+                    {
+                        Console.WriteLine($"obj.{pair.Key} = \"{pair.Value}\";");
+                    }
+        
+                    return;
+                }
+    }
+
     var simple = items.ToDictionary(x => x.Key, x => x.Value);
 
     JsonSerializer.Serialize(Console.OpenStandardOutput(), simple);
-    
+}
+
+/// <summary>
+/// Turn a string into a CSV cell output
+/// http://stackoverflow.com/questions/6377454/escaping-tricky-string-to-csv-format
+/// </summary>
+/// <param name="str">String to output</param>
+/// <returns>The CSV cell formatted string</returns>
+static string EncodeStringForCSV(string str)
+{
+    if (str == null) return null;
+    str = str.Replace("\n", "<br/>");
+    bool mustQuote = (str.Contains(",") || str.Contains("\"") || str.Contains("\r") || str.Contains("\n"));
+    if (mustQuote)
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.Append("\"");
+        foreach (char nextChar in str)
+        {
+            sb.Append(nextChar);
+            if (nextChar == '"')
+                sb.Append("\"");
+        }
+
+        sb.Append("\"");
+        return sb.ToString();
+    }
+
+    return str;
+}
+
+static string EncodeObjectForCSV(object value)
+{
+    if (value == null) return null;
+    if (value is DateTime || value is DateTime?)
+    {
+        return EncodeStringForCSV(((DateTime) value).ToString("O"));
+    }
+
+    return EncodeStringForCSV(value.ToString());
 }
