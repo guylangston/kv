@@ -1,7 +1,7 @@
-using System.Text;
 using System.Text.Json;
-using System.Xml.XPath;
 using kv.core;
+
+namespace kv.console;
 
 public class AppRunner
 {
@@ -48,7 +48,7 @@ kv rm       {datastore} {keyname}
 kv rm-store {datastore}
 kv export   {datastore} {format}
     where: f
-        format = {json,header,csv,dict}
+        format = {json,header,csv,dict,html,xml}
 ");
     }
 
@@ -100,10 +100,7 @@ kv export   {datastore} {format}
             }
             else if (mob == "-f" && fmt == "csv")
             {
-                foreach (var pair in items)
-                {
-                    stdout.WriteLine($"{pair.Key},{EncodeStringForCSV(pair.Value)}");
-                }
+                
 
                 return;
             }
@@ -127,24 +124,11 @@ kv export   {datastore} {format}
             }
             else if (mob == "-f" && fmt == "html")
             {
-                stdout.WriteLine("<table>");
-                foreach (var pair in items)
-                {
-                    stdout.WriteLine($"<tr> <th>{pair.Key}</th> <td>{pair.Value}</td> </tr>");
-                }
-
-                stdout.WriteLine("</table>");
+                
                 return;
             }
             else if (mob == "-f" && fmt == "xml")
             {
-                stdout.WriteLine("<data>");
-                foreach (var pair in items)
-                {
-                    stdout.WriteLine($" <value name='{pair.Key}'>{pair.Value}</value>");
-                }
-
-                stdout.WriteLine("</data>");
                 return;
             }
         }
@@ -154,45 +138,6 @@ kv export   {datastore} {format}
         stdout.WriteLine(JsonSerializer.Serialize(simple));
     }
 
-    /// <summary>
-    /// Turn a string into a CSV cell output
-    /// http://stackoverflow.com/questions/6377454/escaping-tricky-string-to-csv-format
-    /// </summary>
-    /// <param name="str">String to output</param>
-    /// <returns>The CSV cell formatted string</returns>
-    static string EncodeStringForCSV(string str)
-    {
-        if (str == null) return null;
-        str = str.Replace("\n", "<br/>");
-        bool mustQuote = (str.Contains(",") || str.Contains("\"") || str.Contains("\r") || str.Contains("\n"));
-        if (mustQuote)
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.Append("\"");
-            foreach (char nextChar in str)
-            {
-                sb.Append(nextChar);
-                if (nextChar == '"')
-                    sb.Append("\"");
-            }
-
-            sb.Append("\"");
-            return sb.ToString();
-        }
-
-        return str;
-    }
-
-    static string EncodeObjectForCSV(object value)
-    {
-        if (value == null) return null;
-        if (value is DateTime || value is DateTime?)
-        {
-            return EncodeStringForCSV(((DateTime) value).ToString("O"));
-        }
-
-        return EncodeStringForCSV(value.ToString());
-    }
 
     public async Task<int> Run()
     {
@@ -272,4 +217,5 @@ kv export   {datastore} {format}
             return 2;
         }
     }
+
 }
