@@ -4,8 +4,13 @@ namespace kv.core;
 
 public class KeyValueApi : IKeyValueApi
 {
-    readonly Feedback feedback = new Feedback();
-    
+    private readonly Feedback feedback;
+
+    public KeyValueApi(Feedback feedback)
+    {
+        this.feedback = feedback;
+    }
+
     public async Task InitDataStore(string datastore)
     {
         var pathDataStore = await GetDataStorePath(datastore, true, false);
