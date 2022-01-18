@@ -49,7 +49,7 @@ public class StdJsonKeyValueProvider : IKeyValueProviderWithConfigInit
         
         // TODO: Confirm file access lock
 
-        using (var file = File.OpenWrite(normFilePath))
+        using (var file = File.Create(normFilePath))
         {
             JsonSerializer.Serialize(file, data, new JsonSerializerOptions()
             {
@@ -93,5 +93,14 @@ public class StdJsonKeyValueProvider : IKeyValueProviderWithConfigInit
     {
         GuardInit();
         return data.Data.TryGetValue(key, out res);
+    }
+
+    public void CreateBlankStore()
+    {
+        data = new JsonDataFormat()
+        {
+            Globals = new Dictionary<string, string>(),
+            Data = new Dictionary<string, KeyValue>()
+        };
     }
 }

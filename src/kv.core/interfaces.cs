@@ -34,6 +34,7 @@ public interface IKeyValueApi
     Task<string> Get(string datastore, string key); // return value
     Task Set(string datastore, string key, string value);
     Task Remove(string datastore, string key);
+    Task<IReadOnlyCollection<KeyValue>> GetAll(string datastore);
 }
 
 // Single JSON file. Entire contents read into memory

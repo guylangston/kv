@@ -20,6 +20,7 @@ public class KeyValueApi : IKeyValueApi
         });
         var provider = new StdJsonKeyValueProvider(feedback);
         provider.Init(cfg);
+        provider.CreateBlankStore();
     
         feedback.PrintMessage($"Creating File: {pathDataStore}");
         provider.Commit();
@@ -124,5 +125,22 @@ public class KeyValueApi : IKeyValueApi
     public Task Remove(string datastore, string key)
     {
         throw new NotImplementedException();
+    }
+
+    public async Task<IReadOnlyCollection<KeyValue>> GetAll(string datastore)
+    {
+        var user = Environment.GetEnvironmentVariable("USER") ?? throw new Exception("User Not Set");
+        var pathDataStore = await GetDataStorePath(datastore, false, true);
+
+        var cfg = new ProviderConfig(nameof(StdJsonKeyValueProvider), new Dictionary<string, string>()
+        {
+            {"PathData", pathDataStore}
+        });
+        var provider = new StdJsonKeyValueProvider(feedback);
+        provider.Init(cfg);
+       
+        provider.Load();
+
+        return provider.GetAll();
     }
 }
