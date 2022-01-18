@@ -10,8 +10,8 @@ public interface IKeyValueProvider
 
 public interface IKeyValueProviderWithConfigInit : IKeyValueProvider
 {
-    void Init(ProviderConfig config);
-    void ConfirmInit();
+    void Init(ProviderConfig cfg);
+    void GuardInit();
 }
 
 public class ProviderConfig
@@ -24,65 +24,16 @@ public class ProviderConfig
 
     public string Provider { get; }
     public IReadOnlyDictionary<string, string> Args { get; }
+
+    public string Get(string key) => Args[key];
+}
+
+public interface IKeyValueApi
+{
+    Task InitDataStore(string datastore);
+    Task<string> Get(string datastore, string key); // return value
+    Task Set(string datastore, string key, string value);
+    Task Remove(string datastore, string key);
 }
 
 // Single JSON file. Entire contents read into memory
-public class StdJsonKeyValueProvider : IKeyValueProviderWithConfigInit
-{
-    IDictionary<string, KeyValue>? data;
-    ProviderConfig? config;
-    string? normFilePath;
-    string? sysLock;
-
-    public StdJsonKeyValueProvider()
-    {
-    }
-
-    public void Init(ProviderConfig config)
-    {
-        if (config is null) throw new ArgumentNullException(nameof(config));
-
-        // Global Config file path => $HOME/.config/global.json 
-
-        var fi = new FileInfo(config.Get("XXX"));
-        normFilePath = fi.FullName; //bin/ Normalise the path -- always the same, so useable for a global lock
-    }
-
-    public void Load()
-    {
-        ConfirmInit();
-    }
-
-    public void Commit()
-    {
-        ConfirmInit();
-        using (var mutex = new System.Threading.Mutex(normFilePath))
-        {
-        }
-    }
-
-    private void ConfirmInit()
-    {
-        throw new NotImplementedException();
-    }
-
-    public void Delete(string key)
-    {
-        throw new NotImplementedException();
-    }
-
-    public IReadOnlyCollection<KeyValue> GetAll()
-    {
-        throw new NotImplementedException();
-    }
-
-    public void Store(KeyValue up)
-    {
-        throw new NotImplementedException();
-    }
-
-    public bool TryGet(string key, out KeyValue res)
-    {
-        throw new NotImplementedException();
-    }
-}
