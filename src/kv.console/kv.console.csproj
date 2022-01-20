@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <ItemGroup>
-        <ProjectReference Include="..\kv.core\kv.core.csproj" />
+        <ProjectReference Include="..\kv.core\kv.core.csproj"/>
     </ItemGroup>
 
     <PropertyGroup>
@@ -9,6 +9,10 @@
         <TargetFramework>net6.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+
+        <RootNamespace>kv.console</RootNamespace>
+        <AssemblyName>kv</AssemblyName>
+ 
     </PropertyGroup>
 
 </Project>

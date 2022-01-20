@@ -90,6 +90,11 @@ public class KeyValueApi : IKeyValueApi
 
     public async Task Set(string datastore, string key, string value)
     {
+        if (!KeyHelper.IsValid(key))
+        {
+            throw new Exception($"Invalid Key: '{key}', must be {KeyHelper.RulesText}");
+        }
+        
         var user = Environment.GetEnvironmentVariable("USER") ?? throw new Exception("User Not Set");
         var pathDataStore = await GetDataStorePath(datastore, false, true);
 
@@ -118,7 +123,7 @@ public class KeyValueApi : IKeyValueApi
             provider.Store(new KeyValue(key, value, KeyHelper.GuessType(value)?.Name, 
                 DateTime.Now, user,
                 DateTime.Now, user,
-                DateTime.Now, user));
+                DateTime.Now, user, ValueType.Raw));
         }
         
         provider.Commit();

@@ -4,7 +4,7 @@ namespace kv.core;
 
 public static class KeyHelper
 {
-    public static bool IsValid(char c) => char.IsLetter(c) || c == '_' || c == '.';
+    public static bool IsValid(char c) => char.IsLetter(c)  || char.IsDigit(c) || c == '_' || c == '.';
 
     public static bool IsValid(string key) => key.All(IsValid);
 
@@ -16,4 +16,6 @@ public static class KeyHelper
 
         return typeof(string);
     }
+
+    public const string RulesText = "a-z A-Z 0-9 _ .";
 }

@@ -65,3 +65,48 @@ public class ReportWriterXml : ReportWriter
         writer.WriteLine("</data>");
     }
 }
+
+public class ReportWriterHeader : ReportWriter
+{
+    public ReportWriterHeader() : base("header", "HTTP header-style")
+    {
+    }
+
+    public override void WriteTo(TextWriter writer, IEnumerable<KeyValue> items)
+    {
+        foreach (var pair in items)
+        {
+            writer.WriteLine($"{pair.Key}:{pair.Value}");
+        }
+    }
+}
+
+public class ReportWriterDict : ReportWriter
+{
+    public ReportWriterDict() : base("dict", "Dictionary setter")
+    {
+    }
+
+    public override void WriteTo(TextWriter writer, IEnumerable<KeyValue> items)
+    {
+        foreach (var pair in items)
+        {
+            writer.WriteLine($"dict[\"{pair.Key}\"] = \"{pair.Value.Replace("\"", "\\\"")}\";");
+        }
+    }
+}
+
+public class ReportWriterSetter : ReportWriter
+{
+    public ReportWriterSetter() : base("setter", "Object setter")
+    {
+    }
+
+    public override void WriteTo(TextWriter writer, IEnumerable<KeyValue> items)
+    {
+        foreach (var pair in items)
+        {
+            writer.WriteLine($"obj.{pair.Key} = \"{pair.Value}\";");
+        }
+    }
+}

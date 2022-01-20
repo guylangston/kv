@@ -32,7 +32,8 @@ public class AppRunner
 
     void PrintHeader()
     {
-        stdout.WriteLine("KV > trivial Key:Value CLI");
+        stdout.WriteLine("KV > trivial Key:Value Tools. License: MIT");
+        stdout.WriteLine("   > https://github.com/guylangston/kv");
         stdout.WriteLine();
     }
 
@@ -89,58 +90,37 @@ kv export   {datastore} {format}
         {
             var mob = args[2];
             var fmt = args[3];
-            if (mob == "-f" && fmt == "header")
+            if (mob == "-f")
             {
-                foreach (var pair in items)
+                var rep = new ReportProvider();
+                if (rep.Reports.TryGetValue(fmt, out var report))
                 {
-                    stdout.WriteLine($"{pair.Key}:{pair.Value}");
+                    report.WriteTo(stdout, items);
+                    return;
                 }
-
-                return;
-            }
-            else if (mob == "-f" && fmt == "csv")
-            {
-                
-
-                return;
-            }
-            else if (mob == "-f" && fmt == "dict")
-            {
-                foreach (var pair in items)
+                else
                 {
-                    stdout.WriteLine($"dict[\"{pair.Key}\"] = \"{pair.Value.Replace("\"", "\\\"")}\";");
+                    throw new Exception($"Format '{fmt}' not found. Available: {string.Join(", ", rep.Reports.Keys)}");
                 }
-
-                return;
-            }
-            else if (mob == "-f" && fmt == "setter")
-            {
-                foreach (var pair in items)
-                {
-                    stdout.WriteLine($"obj.{pair.Key} = \"{pair.Value}\";");
-                }
-
-                return;
-            }
-            else if (mob == "-f" && fmt == "html")
-            {
-                
-                return;
-            }
-            else if (mob == "-f" && fmt == "xml")
-            {
-                return;
             }
         }
 
+        // Move to ReportWriter
         var simple = items.ToDictionary(x => x.Key, x => x.Value);
-
         stdout.WriteLine(JsonSerializer.Serialize(simple));
     }
 
 
     public async Task<int> Run()
     {
+        if (args.Length == 0)
+        {
+            PrintHeader();
+            PrintHelp();
+            return 1;
+        }
+        
+        
         var controller = BuildController();
         var cmd = args.First().ToUpperInvariant().Trim();
 
